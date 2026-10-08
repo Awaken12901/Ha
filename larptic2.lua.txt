@@ -101,6 +101,12 @@ local Config = {
     IsHooking = false
 }
 
+-- Mobile feature state is declared early because some UI callbacks can run during initialization.
+getgenv().MobileFeatureUnlocked=getgenv().MobileFeatureUnlocked or {}
+getgenv().MarkMobileFeature=getgenv().MarkMobileFeature or function(name, enabled)
+    if enabled then getgenv().MobileFeatureUnlocked[name]=true end
+end
+
 local N = {
     Aq = function(self, n)
         n = n % 4294967296
@@ -1046,6 +1052,7 @@ Config.Legit_aim_lbl:AddToggle({
     Flag = "Legit_AimbotEnabled",
     Callback = function(S)local w={}
             Config.Legit.AimbotEnabled = S
+        getgenv().MarkMobileFeature("aimbot", S)
         if not S then         Config.Legit.AimbotActive = false
         end
     end,
@@ -1075,6 +1082,7 @@ Config.Legit_silent_lbl:AddToggle({
     Flag = "Legit_SilentAimEnabled",
     Callback = function(S)local w={}
             Config.Legit.SilentAimEnabled = S
+            getgenv().MarkMobileFeature("silent aim", S)
     end,
 })
 Config.Legit_hitpart_lbl = (Config.LegitAimbotSection:AddLabel("hitpart"))
@@ -1300,6 +1308,7 @@ X[481]:AddToggle({
     Default = false,
     Flag = "KA_Enabled",
     Callback = function(S)getgenv().KillAura.Enabled=S
+        getgenv().MarkMobileFeature("kill aura", S)
     end,
 })
 X[482]=getgenv()
@@ -2660,6 +2669,7 @@ getgenv().dResetCamera=function()local S=getgenv().LocalPlayer.Character
 end
 Config.SetDesync=function(S)local w={}
         Config.Desync.enabled = S
+    getgenv().MarkMobileFeature("desync", S)
     local P=getgenv().LocalPlayer.Character
     local a,v=P and P:FindFirstChild("HumanoidRootPart"),not S
     if v then getgenv().dResetCamera()
@@ -2986,6 +2996,7 @@ N:jq(X[720],1,X[721])
 X[720].n=2
 X[123],X[124]=X[720][1],X[720][2]
 X[124].Callback=function(S)getgenv().FakePosToggleEnabled=S
+    getgenv().MarkMobileFeature("fake pos", S)
     getgenv().PhysicsRepDesyncEnabled=S
     local w=p
     local P=w:GetService("Players").LocalPlayer.Character
@@ -3467,6 +3478,7 @@ Config.Misc_walkspeed_lbl:AddToggle({
     Flag = "Misc_WalkSpeedEnabled",
     Callback = function(S)local w={}
             Config.Misc.WalkSpeedEnabled = S
+        getgenv().MarkMobileFeature("walkspeed", S)
         if not S then         Config.Misc.WalkSpeedActive = false
         else X[144](getgenv().LocalPlayer.Character)
         end
@@ -3499,6 +3511,7 @@ Config.Misc_cf_speed_lbl:AddToggle({
     Flag = "Misc_CFrameSpeedEnabled",
     Callback = function(S)local w={}
             Config.Misc.CFrameSpeedEnabled = S
+        getgenv().MarkMobileFeature("cframe speed", S)
         if not S then         Config.Misc.CFrameSpeedActive = false
         end
     end,
@@ -3534,6 +3547,7 @@ X[844].n=2
 X[145],X[146]=X[844][1],X[844][2]
 X[146].Callback=function(S)local w={}
         Config.Misc.CFrameFlyEnabled = S
+    getgenv().MarkMobileFeature("cframe fly", S)
     local P=not S
     if P then         Config.Misc.CFrameFlyActive = false
         S=getgenv().LocalPlayer.Character
@@ -6791,6 +6805,7 @@ X[1646].Default=false
 X[1646].Flag="FH_Enabled"
 X[1646].Callback=function(S)local w={}
         Config.ForceHit.Enabled = S
+    getgenv().MarkMobileFeature("force hit", S)
     if not S then         Config.ForceHit.Active = false
                 Config.ForceHit.Target = nil
         getgenv().TargetLine.Visible=false
@@ -7068,6 +7083,7 @@ X[1696]:AddToggle({
     Flag = "FH_TargetStrafe",
     Callback = function(S)local w={}
             Config.ForceHit.StrafeArmed = S
+            getgenv().MarkMobileFeature("target strafe", S)
             Config.ForceHit.StrafeEnabled = S
         if not S then getgenv().stopStrafe()
         end
@@ -7917,6 +7933,7 @@ X[1887].Callback=function(S)getgenv().AutoKnifeEnabled=S
         Default = false,
         Flag = "GlueConnection",
         Callback = function(S)getgenv().feature_enabled=S
+        getgenv().MarkMobileFeature("glue", S)
                 if not getgenv().feature_enabled then getgenv().glue_active=false
                     if getgenv().connection_loop then getgenv().connection_loop:Disconnect()
                         getgenv().connection_loop=nil
@@ -13274,128 +13291,257 @@ getgenv().CharizardConnection=getgenv().RunService.RenderStepped:Connect(functio
     X[169]=X[2519]
     N:jq(X[164],0,X[189],u,X[27],X[6],X[28],v,w,X[136],L,X[169])
     X[178].KeybindInspectors=X[164]
-    getgenv().KeybindButtonInstances={}
-    getgenv().createSubCardButton=function(g)local P={}
-        local a=466041707
-        local v=a
-        local E=Instance.new("TextButton")
-        P[1]="Btn_"..g.Name
-        E.Name=P[1]
-        E.Size=UDim2.new(1,0,0,32)
-        E.BorderSizePixel=0
-        E.Text=g.Name:lower()
-        E.ZIndex=104
-        E.Parent=getgenv().MobileScrollHolder
-        local L=Instance.new("UICorner")
-        P[2]="ButtonCorner"
-        L.Name=P[2]
-        L.Parent=E
-        L=nil
-        L,a=Instance.new,N:Aq(v+394922321)
-        v=(L("UIStroke"))
-        P[3]="BorderStroke"
-        v.Name=P[3]
-        a=N:Aq(a-124430100)
-        v.Parent=E
-        v=(Instance.new("UIStroke"))
-        P[4]="TextStroke"
-        v.Name=P[4]
-        v.LineJoinMode=Enum.LineJoinMode.Miter
-        v.Color=Color3.fromRGB(0,0,0)
-        v.Transparency=0.7
-        v.Parent=E
-        local P=false
-        local function a()local v=439250556
-            local L=v
-            local Y=P
-            if Y then return
-            end
-            P=true
-            local Y,r
-            Y,r,v=pcall,g.Trigger,bit32.bxor(L,377207949)
-            Y(r)
-            r=nil
-            r,v=task,N:Aq(bit32.band(120388533,v)+bit32.band(120388533,505251156)+(bit32.band(4174578764,(bit32.bor(v,505251156)))+bit32.band(4174578762,(bit32.band(v,505251156)))))
-            r.delay(0.1,function()P=false
+    -- Dedicated mobile feature controls. These are independent of the PC keybind HUD.
+    getgenv().MobileFeatureButtons={}
+    getgenv().MobileFeatureUnlocked=getgenv().MobileFeatureUnlocked or {}
+    getgenv().MarkMobileFeature=function(name, enabled)
+        if enabled then
+            getgenv().MobileFeatureUnlocked[name]=true
+        end
+    end
+
+    getgenv().MobileFeatureInspectors={
+        {
+            Name="aimbot",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["aimbot"]==true end,
+            IsActive=function() return Config.Legit and Config.Legit.AimbotActive==true end,
+            Trigger=function()
+                if Config.Legit and Config.Legit.AimbotEnabled then
+                    Config.Legit.AimbotActive=not Config.Legit.AimbotActive
+                end
+            end,
+        },
+        {
+            Name="silent aim",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["silent aim"]==true end,
+            IsActive=function() return Config.Legit and Config.Legit.SilentAimEnabled==true end,
+            Trigger=function()
+                if Config.Legit then
+                    Config.Legit.SilentAimEnabled=not Config.Legit.SilentAimEnabled
+                end
+            end,
+        },
+        {
+            Name="force hit",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["force hit"]==true end,
+            IsActive=function() return Config.ForceHit and Config.ForceHit.Active==true end,
+            Trigger=function()
+                if Config.ForceHit and Config.ForceHit.Enabled then
+                    Config.ForceHit.Active=not Config.ForceHit.Active
+                    if Config.ForceHit.Active then
+                        if not(Config.ForceHit.Target and Config.ForceHit.Target.Parent) and getgenv().FH_GetClosest then
+                            Config.ForceHit.Target=getgenv().FH_GetClosest()
+                        end
+                    else
+                        Config.ForceHit.Target=nil
+                        if getgenv().TargetLine then getgenv().TargetLine.Visible=false end
+                        Config.ForceHit.StrafeEnabled=false
+                    end
+                end
+            end,
+        },
+        {
+            Name="target strafe",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["target strafe"]==true end,
+            IsActive=function() return Config.ForceHit and Config.ForceHit.StrafeEnabled==true end,
+            Trigger=function()
+                if Config.ForceHit and Config.ForceHit.Enabled then
+                    local active=not Config.ForceHit.StrafeEnabled
+                    Config.ForceHit.StrafeArmed=true
+                    Config.ForceHit.StrafeEnabled=active
+                    if not active and getgenv().stopStrafe then getgenv().stopStrafe() end
+                end
+            end,
+        },
+        {
+            Name="desync",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["desync"]==true end,
+            IsActive=function() return Config.Desync and Config.Desync.enabled==true end,
+            Trigger=function()
+                if getgenv().setDesync then
+                    getgenv().Des_MasterEnabled=true
+                    getgenv().setDesync(not(Config.Desync and Config.Desync.enabled))
+                end
+            end,
+        },
+        {
+            Name="glue",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["glue"]==true end,
+            IsActive=function() return getgenv().glue_active==true end,
+            Trigger=function()
+                if not getgenv().feature_enabled then return end
+                getgenv().glue_active=not getgenv().glue_active
+                if getgenv().glue_active then
+                    if getgenv().use_unc_method and getgenv().unc_connection then getgenv().unc_connection()
+                    elseif getgenv().no_unc_connection then getgenv().no_unc_connection() end
+                else
+                    if getgenv().connection_loop then getgenv().connection_loop:Disconnect(); getgenv().connection_loop=nil end
+                    if getgenv().no_unc_loop then getgenv().no_unc_loop:Disconnect(); getgenv().no_unc_loop=nil end
+                    if getgenv().reset_velocity then getgenv().reset_velocity() end
+                end
+            end,
+        },
+        {
+            Name="cframe speed",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["cframe speed"]==true end,
+            IsActive=function() return Config.Misc and Config.Misc.CFrameSpeedActive==true end,
+            Trigger=function()
+                if Config.Misc and Config.Misc.CFrameSpeedEnabled then Config.Misc.CFrameSpeedActive=not Config.Misc.CFrameSpeedActive end
+            end,
+        },
+        {
+            Name="cframe fly",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["cframe fly"]==true end,
+            IsActive=function() return Config.Misc and Config.Misc.CFrameFlyActive==true end,
+            Trigger=function()
+                if Config.Misc and Config.Misc.CFrameFlyEnabled then Config.Misc.CFrameFlyActive=not Config.Misc.CFrameFlyActive end
+            end,
+        },
+        {
+            Name="walkspeed",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["walkspeed"]==true end,
+            IsActive=function() return Config.Misc and Config.Misc.WalkSpeedActive==true end,
+            Trigger=function()
+                if Config.Misc and Config.Misc.WalkSpeedEnabled then Config.Misc.WalkSpeedActive=not Config.Misc.WalkSpeedActive end
+            end,
+        },
+        {
+            Name="kill aura",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["kill aura"]==true end,
+            IsActive=function() return getgenv().KillAura and getgenv().KillAura.Enabled==true end,
+            Trigger=function()
+                if getgenv().KillAura then getgenv().KillAura.Enabled=not getgenv().KillAura.Enabled end
+            end,
+        },
+        {
+            Name="fake pos",
+            IsVisible=function() return getgenv().MobileFeatureUnlocked["fake pos"]==true end,
+            IsActive=function() return getgenv().PhysicsRepDesyncEnabled==true end,
+            Trigger=function()
+                local active=not getgenv().PhysicsRepDesyncEnabled
+                getgenv().PhysicsRepDesyncEnabled=active
+                getgenv().FakePosToggleEnabled=active
+                local char=getgenv().LocalPlayer and getgenv().LocalPlayer.Character
+                local root=char and char:FindFirstChild("HumanoidRootPart")
+                if active then
+                    if root then getgenv().FakePosServerPos=root.Position end
+                else
+                    getgenv().FakePosServerPos=nil
+                    if root and sethiddenproperty then pcall(sethiddenproperty,root,"PhysicsRepRootPart",root) end
+                end
+            end,
+        },
+    }
+
+    -- Center the control panel on first spawn and keep it compact enough for phones.
+    getgenv().MobileFrame.Size=UDim2.new(0,190,0,52)
+    getgenv().MobileFrame.Position=UDim2.new(0.5,-95,0.5,-100)
+    getgenv().MobileFrame.ClipsDescendants=false
+
+    -- Only the header is the drag handle, so tapping a feature button never drags the panel.
+    local MobileDragHandle=getgenv().MobileHeaderLabel or getgenv().MobileFrame
+    getgenv().MobileDragging=false
+    getgenv().MobileDragInput=nil
+    getgenv().MobileDragStart=nil
+    getgenv().MobileStartPos=nil
+    MobileDragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType==Enum.UserInputType.Touch or input.UserInputType==Enum.UserInputType.MouseButton1 then
+            getgenv().MobileDragging=true
+            getgenv().MobileDragStart=input.Position
+            getgenv().MobileStartPos=getgenv().MobileFrame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState==Enum.UserInputState.End then getgenv().MobileDragging=false end
             end)
         end
-        E.Activated:Connect(a)
-        E.MouseButton1Down:Connect(a)
-        return E
-    end
-    for g,g in ipairs(getgenv().KeybindInspectors)do if not getgenv().KeybindButtonInstances[g.Name]then getgenv().KeybindButtonInstances[g.Name]=getgenv().createSubCardButton(g)
+    end)
+    MobileDragHandle.InputChanged:Connect(function(input)
+        if input.UserInputType==Enum.UserInputType.Touch or input.UserInputType==Enum.UserInputType.MouseMovement then
+            getgenv().MobileDragInput=input
         end
+    end)
+    getgenv().UIS.InputChanged:Connect(function(input)
+        if input==getgenv().MobileDragInput and getgenv().MobileDragging then
+            local delta=input.Position-getgenv().MobileDragStart
+            local pos=getgenv().MobileStartPos
+            getgenv().MobileFrame.Position=UDim2.new(pos.X.Scale,pos.X.Offset+delta.X,pos.Y.Scale,pos.Y.Offset+delta.Y)
+        end
+    end)
+
+    getgenv().createMobileFeatureButton=function(feature)
+        local button=Instance.new("TextButton")
+        button.Name="Mobile_"..feature.Name:gsub("%s+", "_")
+        button.Size=UDim2.new(1,0,0,36)
+        button.BackgroundColor3=Color3.fromRGB(8,8,8)
+        button.BackgroundTransparency=0
+        button.BorderSizePixel=0
+        button.AutoButtonColor=false
+        button.Font=Enum.Font.GothamBold
+        button.TextSize=13
+        button.TextColor3=Color3.fromRGB(255,255,255)
+        button.TextXAlignment=Enum.TextXAlignment.Center
+        button.ZIndex=104
+        button.Parent=getgenv().MobileScrollHolder
+
+        local corner=Instance.new("UICorner")
+        corner.CornerRadius=UDim.new(0,10)
+        corner.Parent=button
+
+        local stroke=Instance.new("UIStroke")
+        stroke.Name="MobileStateStroke"
+        stroke.Thickness=1.2
+        stroke.Color=Color3.fromRGB(75,75,75)
+        stroke.Transparency=0.15
+        stroke.Parent=button
+
+        button.Activated:Connect(function()
+            feature.Trigger()
+        end)
+
+        getgenv().MobileFeatureButtons[feature.Name]=button
+        return button
     end
-    task.spawn(function()while task.wait(0.12)do local g=511335709
-            local P=g
-            local a
-            a,g=getgenv,N:Aq(P+490224918)
-            P=a().Unloaded
-            g=N:Aq(g-245882816)
-            if P then if getgenv().KeybindGui then getgenv().KeybindGui:Destroy()
-                    getgenv().KeybindGui=nil
-                end
+
+    for _,feature in ipairs(getgenv().MobileFeatureInspectors) do
+        getgenv().createMobileFeatureButton(feature)
+    end
+
+    task.spawn(function()
+        while task.wait(0.08) do
+            if getgenv().Unloaded then
+                if getgenv().KeybindGui then getgenv().KeybindGui:Destroy(); getgenv().KeybindGui=nil end
                 break
             end
-            local function g()local P={}
-                getgenv().CurrentTheme=getgenv().ActiveUITheme or{Main=Color3.fromRGB(8,8,13),Secondary=Color3.fromRGB(20,22,27),Input=Color3.fromRGB(26,28,36),Accent=Color3.fromRGB(78,127,252),Stroke=Color3.fromRGB(45,48,58),Text=Color3.fromRGB(255,255,255),CornerRadius=8,Font=Enum.Font.GothamMedium,BoldFont=Enum.Font.GothamBold,StrokeThickness=1,StrokeTransparency=0.65,BgTransparency=0.055,SecondaryTransparency=0.5}
-                local a=getgenv().CurrentTheme
-                if getgenv().MobileFrame then getgenv().MobileFrame.BackgroundColor3=a.Main
-                    getgenv().MobileFrame.BackgroundTransparency=a.BgTransparency or 0.15
-                end
-                if getgenv().MobileFrameCorner then getgenv().MobileFrameCorner.CornerRadius=UDim.new(0,a.CornerRadius or 12)
-                end
-                if getgenv().MobileFrameStroke then getgenv().MobileFrameStroke.Color=a.Stroke
-                    getgenv().MobileFrameStroke.Thickness=a.StrokeThickness or 1.2
-                    getgenv().MobileFrameStroke.Transparency=a.StrokeTransparency or 0.88
-                end
-                if getgenv().MobileAccentLine then getgenv().MobileAccentLine.BackgroundColor3=a.Accent
-                end
-                local v=getgenv().MobileHeaderLabel
-                if v then getgenv().MobileHeaderLabel.TextColor3=a.Text
-                    getgenv().MobileHeaderLabel.Font=a.BoldFont or Enum.Font.GothamBold
-                    getgenv().MobileHeaderLabel.TextSize=a.Font==Enum.Font.Code and 10 or 11
-                    getgenv().MobileHeaderLabel.Text = "keybinds ("..tostring(#getgenv().KeybindInspectors)..")"
-                end
-                local P,E=ipairs,getgenv().KeybindInspectors
-                for L,Y in P(E)do v=getgenv().KeybindButtonInstances[Y.Name]
-                    if v then local P=40096481
-                    L=P
-                    local E=false
-                    P=N:Aq(bit32.band(2117100538,L)+bit32.band(2117100538,217613588)+(bit32.band(60766220,(bit32.bor(L,217613588)))+bit32.band(2117100539,(bit32.bxor(L,217613588)))))
-                    local P=pcall
-                    local function L()E=Y.IsActive()
-                end
-                P(L)
-                L=(v:FindFirstChild("ButtonCorner"))
-                P=(v:FindFirstChild("BorderStroke"))
-                v.Font=a.BoldFont or Enum.Font.GothamBold
-                v.TextColor3=a.Text
-                v.TextSize=a.Font==Enum.Font.Code and 10 or 11
-                if L then L.CornerRadius=UDim.new(0,math.clamp(a.CornerRadius or 8,0,10))
-                end
-                if E then v.BackgroundColor3=a.Accent
-                    v.BackgroundTransparency=0.2
-                    if P then P.Color=a.Accent
-                    P.Thickness=a.StrokeThickness or 1
-                    P.Transparency=0.4
-                end
-            else v.BackgroundColor3=a.Secondary or Color3.fromRGB(24,24,28)
-                v.BackgroundTransparency=a.SecondaryTransparency or 0.3
-                if P then P.Color=a.Stroke
-                    P.Thickness=a.StrokeThickness or 1
-                    P.Transparency=a.StrokeTransparency or 0.85
+
+            local visibleCount=0
+            for _,feature in ipairs(getgenv().MobileFeatureInspectors) do
+                local button=getgenv().MobileFeatureButtons[feature.Name]
+                if button then
+                    local visible=false
+                    local active=false
+                    pcall(function() visible=feature.IsVisible() end)
+                    pcall(function() active=feature.IsActive() end)
+                    button.Visible=visible
+                    if visible then
+                        visibleCount+=1
+                        button.Text=feature.Name..(active and ": on" or ": off")
+                        button.BackgroundColor3=Color3.fromRGB(8,8,8)
+                        button.BackgroundTransparency=0
+                        local stroke=button:FindFirstChild("MobileStateStroke")
+                        if stroke then
+                            stroke.Color=active and Color3.fromRGB(95,190,130) or Color3.fromRGB(75,75,75)
+                            stroke.Transparency=active and 0.05 or 0.15
+                        end
+                    end
                 end
             end
+
+            local contentHeight=visibleCount*36+math.max(0,visibleCount-1)*5
+            getgenv().MobileScrollHolder.CanvasSize=UDim2.new(0,0,0,contentHeight)
+            getgenv().MobileScrollHolder.CanvasPosition=Vector2.new(0,0)
+            getgenv().MobileFrame.Size=UDim2.new(0,190,0,math.clamp(36+contentHeight,52,390))
+            getgenv().MobileFrame.Visible=visibleCount>0
         end
-    end
-    v=#getgenv().KeybindInspectors*37
-    getgenv().TargetHeight=math.clamp(36+v,42,260)
-    if getgenv().MobileListLayout then getgenv().MobileScrollHolder.CanvasSize=UDim2.new(0,0,0,getgenv().MobileListLayout.AbsoluteContentSize.Y)
-    end
-    if getgenv().MobileFrame then getgenv().MobileFrame.Size=UDim2.new(0,135,0,getgenv().TargetHeight)
-    end
-end
+    end)
 pcall(g)
 end
 end)
